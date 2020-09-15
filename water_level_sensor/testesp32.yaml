@@ -1,0 +1,53 @@
+esphome:
+  name: testesp32
+  platform: ESP32
+  board: esp32dev
+  includes:
+    - water_level_sensor.h
+
+wifi:
+  ssid: !secret wifinotnetwork
+  password: !secret wifinotpasswd
+
+  manual_ip:
+    static_ip: 192.168.20.103
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Hotspot testesp32"
+    password: !secret hotspotpasswd
+
+captive_portal:
+
+# Enable logging
+logger:
+  level: VERBOSE
+
+# Enable Home Assistant API
+api:
+  password: !secret apipasswd
+
+ota:
+  password: !secret otapasswd
+
+i2c:
+  sda: 21
+  scl: 22
+  scan: True
+  id: bus_a
+
+sensor:
+  - platform: uptime
+    name: Uptime Sensor
+
+  - platform: custom
+    lambda: |-
+      auto my_sensor = new WaterLevelSensor();
+      App.register_component(my_sensor);
+      return {my_sensor};
+
+    sensors:
+      name: "Water Level Sensor"
+      unit_of_measurement: "%"
