@@ -1,9 +1,15 @@
 esphome:
   name: testesp32
-  platform: ESP32
-  board: esp32dev
-  includes:
+    includes:
     - water_level_sensor.h
+
+  libraries:
+    - Wire
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
 
 wifi:
   ssid: !secret wifinotnetwork
