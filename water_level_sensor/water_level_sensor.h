@@ -1,20 +1,24 @@
 #include "esphome.h"
+#include <Wire.h>
 
-// https://wiki.seeedstudio.com/Grove-Water-Level-Sensor/
-unsigned char low_data[8] = {0};
-unsigned char high_data[12] = {0};
+ // https://wiki.seeedstudio.com/Grove-Water-Level-Sensor/
+ unsigned char low_data[8] = {0};
+ unsigned char high_data[12] = {0};
 
-int sensorvalue_min = 250;
-int sensorvalue_max = 255;
+ int sensorvalue_min = 250;
+ int sensorvalue_max = 255;
 
-#define NO_TOUCH            0xFE
-#define THRESHOLD           100
-#define ATTINY1_HIGH_ADDR   0x78
-#define ATTINY2_LOW_ADDR    0x77
+ #define NO_TOUCH            0xFE
+ #define THRESHOLD           100
+ #define ATTINY1_HIGH_ADDR   0x78
+ #define ATTINY2_LOW_ADDR    0x77
 
 class WaterLevelSensor : public PollingComponent, public Sensor {
  public:
-  WaterLevelSensor() : PollingComponent(15000) {} 
+  // constructor
+  WaterLevelSensor() : PollingComponent(15000) {}
+
+  float get_setup_priority() const override { return esphome::setup_priority::HARDWARE; }
 
   void setup() override {
     // Initialize the device here. Usually Wire.begin() will be called in here,
@@ -29,11 +33,11 @@ class WaterLevelSensor : public PollingComponent, public Sensor {
 
     getLow8SectionValue();
     getHigh12SectionValue();
- 
-    ESP_LOGV("custom", "low 8 sections value = %d.%d.%d.%d.%d.%d.%d.%d", low_data[0], low_data[1], low_data[2], low_data[3], low_data[4], low_data[5], low_data[6], low_data[7]);
- 
-    ESP_LOGV("custom", "high 12 sections value = %d.%d.%d.%d.%d.%d.%d.%d.%d.%d.%d.%d", high_data[0], high_data[1], high_data[2], high_data[3], high_data[4], high_data[5], high_data[6], high_data[7], high_data[8], high_data[9], high_data[10], high_data[11]);
- 
+
+    ESP_LOGV("custom", "low 8 sections value = %d.%d.%d.%d.%d.%d.%d.%d", low_data[0], low_data[1], low_data[2], low_data[3], low_dat                                                                                                         a[4], low_data[5], low_data[6], low_data[7]);
+
+    ESP_LOGV("custom", "high 12 sections value = %d.%d.%d.%d.%d.%d.%d.%d.%d.%d.%d.%d", high_data[0], high_data[1], high_data[2], hig                                                                                                         h_data[3], high_data[4], high_data[5], high_data[6], high_data[7], high_data[8], high_data[9], high_data[10], high_data[11]);
+
     for (int i = 0 ; i < 8; i++) {
       if (low_data[i] > THRESHOLD) {
         touch_val |= 1 << i;
@@ -45,7 +49,9 @@ class WaterLevelSensor : public PollingComponent, public Sensor {
         touch_val |= (uint32_t)1 << (8 + i);
       }
     }
- 
+
+    ESP_LOGV("custom", "touch_val = %d", touch_val);
+
     while (touch_val & 0x01)
     {
       trig_section++;
@@ -82,5 +88,4 @@ class WaterLevelSensor : public PollingComponent, public Sensor {
     delay(10);
   }
 
-};
-
+ };
